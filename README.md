@@ -119,7 +119,7 @@ Copilot provided code completion, refactoring suggestions, and development guida
 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/EventEase.git
+git clone https://github.com/mon-thanawat/EventEaseApp.git  
 ```
 
 2. Navigate to the project folder
