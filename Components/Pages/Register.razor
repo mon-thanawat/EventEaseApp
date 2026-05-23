@@ -1,0 +1,104 @@
+@page "/register/{Id:guid}"
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@using EventEaseApp.Models
+@using EventEaseApp.Services
+@inject UserSessionService SessionService
+@inject NavigationManager Nav
+
+<PageTitle>Register</PageTitle>
+
+<style>
+    .register-page {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .register-page h1 {
+        margin-bottom: 30px;
+    }
+    .register-page .form-label {
+        font-weight: bold;
+    }
+    .register-page .btn {
+        width: 100%;
+    }
+    .register-page .alert {
+        margin-top: 20px;
+    }
+    </style>
+
+@if (Event == null)
+{
+    <p>Event not found.</p>
+}
+else
+{
+    <h1>Register for @Event.Name</h1>
+
+    <EditForm Model="@Registration" OnValidSubmit="@HandleValidSubmit" FormName="RegisterForm" id="registerForm">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Name</label>
+            <InputText class="form-control" @bind-Value="Registration.Name" />
+            <ValidationMessage For="@(() => Registration.Name)" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <InputText class="form-control" @bind-Value="Registration.Email" />
+            <ValidationMessage For="@(() => Registration.Email)" />
+        </div>
+
+        <button class="btn btn-primary" type="submit">Register</button>
+    </EditForm>
+
+    @if (success)
+    {
+        <div class="alert alert-success mt-3">Registration successful.</div>
+        <button class="btn btn-link" @onclick="@(() => Nav.NavigateTo($"/attendance/{Event.Id}"))">
+            View Attendance
+        </button>
+    }
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private Event? Event;
+    private RegistrationModel Registration = new();
+    private bool success;
+
+    protected override void OnInitialized()
+    {
+        Event = SessionService.GetEvent(Id);
+    }
+
+    private void HandleValidSubmit()
+    {
+        var attendee = new Attendee
+        {
+            Name = Registration.Name,
+            Email = Registration.Email,
+            RegisteredAt = DateTime.UtcNow
+        };
+
+        SessionService.Register(Id, attendee);
+        success = true;
+
+        Registration = new RegistrationModel();
+    }
+
+    public class RegistrationModel
+    {
+        [Required]
+        public string Name { get; set; } = string.Empty;
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+    }
+}

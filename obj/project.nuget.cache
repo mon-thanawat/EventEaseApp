@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "Pu+P0o+C0AY=",
+  "success": true,
+  "projectFilePath": "E:\\Practice\\Blazor\\EventEaseApp\\EventEaseApp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Mon\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\10.0.1\\microsoft.aspnetcore.app.internal.assets.10.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}

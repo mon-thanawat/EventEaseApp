@@ -1,0 +1,171 @@
+@page "/attendance/{Id:guid}"
+@using EventEaseApp.Models
+@using EventEaseApp.Services
+@inject UserSessionService SessionService
+@inject NavigationManager Nav
+
+<PageTitle>Attendance</PageTitle>
+
+
+<style>
+    .attendance-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .hero-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .stat-card {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6c757d;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 20px;
+    }
+</style>
+
+@if (Event == null)
+{
+    <div class="alert alert-danger mt-4">
+        <h4>Event not found</h4>
+        <p class="mb-0">The selected event could not be found.</p>
+    </div>
+}
+else
+{
+    var attendees = SessionService.GetAttendees(Id).ToList();
+
+    <div class="attendance-page">
+        <div class="hero-card mb-4">
+            <div>
+                <p class="text-uppercase text-muted mb-1 small fw-semibold">Attendance Tracker</p>
+                <h1 class="mb-2">@Event.Name</h1>
+                <p class="mb-0 text-muted">
+                    View registered attendees and registration times for this event.
+                </p>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-number">@attendees.Count</span>
+                <span class="stat-label">Registered</span>
+            </div>
+        </div>
+
+        @* <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Attendees</h3>
+            <button class="btn btn-outline-primary" @onclick="@(() => Nav.NavigateTo($"/register/{Event.Id}"))">
+                Add Attendee
+            </button>
+        </div> *@
+
+        @if (!attendees.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-icon">👥</div>
+                <h4>No attendees registered yet</h4>
+                <p class="text-muted">
+                    Once users register for this event, their information will appear here.
+                </p>
+                <button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo($"/register/{Event.Id}"))">
+                    Register First Attendee
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 60px;">#</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Registered At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in attendees.Select((attendee, index) => new { attendee, index }))
+                            {
+                                <tr>
+                                    <td class="text-muted">@(item.index + 1)</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="avatar">
+                                                @GetInitials(item.attendee.Name)
+                                            </div>
+                                            <strong>@item.attendee.Name</strong>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:@item.attendee.Email" class="text-decoration-none">
+                                            @item.attendee.Email
+                                        </a>
+                                    </td>
+                                    <td class="text-muted">
+                                        @item.attendee.RegisteredAt.ToLocalTime().ToString("MMM dd, yyyy h:mm tt")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private Event? Event;
+
+    protected override void OnInitialized()
+    {
+        Event = SessionService.GetEvent(Id);
+    }
+
+    private static string GetInitials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return "?";
+        }
+
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        if (parts.Length == 1)
+        {
+            return parts[0][0].ToString().ToUpper();
+        }
+
+        return $"{parts[0][0]}{parts[^1][0]}".ToUpper();
+    }
+}

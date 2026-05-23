@@ -1,0 +1,30 @@
+@page "/events"
+@using EventEaseApp.Models
+@using EventEaseApp.Services
+@using EventEaseApp.Components
+@inject UserSessionService SessionService
+
+<PageTitle>Events</PageTitle>
+
+<h1>Events</h1>
+
+@if (events == null || !events.Any())
+{
+    <p>No events available.</p>
+}
+else
+{
+    foreach (var ev in events)
+    {
+        <EventCard EventItem="ev" />
+    }
+}
+
+@code {
+    private List<Event> events = new();
+
+    protected override void OnInitialized()
+    {
+        events = SessionService.GetEvents().ToList();
+    }
+}

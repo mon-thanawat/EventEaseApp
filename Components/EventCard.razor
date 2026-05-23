@@ -1,0 +1,24 @@
+@using EventEaseApp.Models
+@using Microsoft.AspNetCore.Components
+
+<style>
+    .card {
+        max-width: 600px;
+        margin: 20px auto;
+    }
+</style>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">@EventItem.Name</h5>
+        <h6 class="card-subtitle mb-2 text-muted">@EventItem.Date.ToString("g") — @EventItem.Location</h6>
+        <p class="card-text">@EventItem.Description</p>
+        <a class="btn btn-primary" href="@($"/register/{EventItem.Id}")">Register</a>
+        <a class="btn btn-secondary ms-2" href="@($"/attendance/{EventItem.Id}")">Attendance</a>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Event EventItem { get; set; } = default!;
+}
